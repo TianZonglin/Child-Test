@@ -38,13 +38,13 @@
 
 为了便于非开发人员自行使用，项目文件中已内置server启动器，无需安装任何编程环境和软件。部署步骤如下：
 
-1. 下载当前项目（通过 `git clone` 或直接网页下载zip解压成文件夹均可）
+1. 下载当前项目（通过 `git clone` 或直接网页下载zip解压成文件夹均可）；
 
-2. 打开命令提示符工具（Powershell也可）
+2. 打开命令提示符工具（Powershell也可）；
 
-3. 更改当前目录到本项目的根目录，例如本项目文件夹放置在D盘 `D:\Child-Test`， 则拷贝执行 `cd /D D:\Child-Test`
+3. 更改当前目录到本项目的根目录，例如本项目文件夹放置在 `D` 盘 `D:\Child-Test`， 则拷贝执行 `cd /D D:\Child-Test` 命令；
 
-4. 拷贝执行 `.\simple-http-server.exe --ip 127.0.0.1` 命令
+4. 拷贝执行 `.\simple-http-server.exe --ip 127.0.0.1` 命令；
 
 5. 如下图所示表示运行正常，可点击访问 `http://127.0.0.1:8000/index.html` 随即进入认识人网页面。
 ![demo](https://cdn.jsdelivr.net/gh/zonelyn/img/demo.jpg)
