@@ -1,0 +1,606 @@
+<!-- @copyright utrecht university
+  -- @author zonglin.tian@outlook.com
+  -- @version 2024-03-03
+  -- @description 实现打分页的全部功能，包括卡片的构造、卡片内部点赞点踩的按钮及关联的一系列操作、排行榜、最后的统计卡片、以及弹出对应的气泡；
+                  本页源自intro页面，结束后返回Qualtrics问卷（退出iframe）。
+  -->
+
+
+
+<div class="rzoneside" id="p17_left" style=""></div>
+
+<!--
+    功能：显示所有卡片，“自己”的卡片+fake朋友的卡片（循环生成）
+-->
+<div class="rzone" id="p17_content" style="">
+  <h2>认识人网</h2>
+  <div id="root">
+    <div id="mb" style="position: absolute;background:rgb(82 83 88 / 56%);width:268px;height:112px;margin-left: 10px; margin-top: 67px;border-radius:5px;z-index:11111"></div>
+    <div class="item" style="position: relative;" id="yitem">
+      <div class="userInfo">
+        <a class="interava"></a>
+        <span class="username" id="yname">PDD</span><span class="self" id="self">你自己</span> 
+      </div>
+      <div class="textInfo" id="ytext">
+       。。。
+      </div>
+      <div class="Btn" id="ybtn"><div style="float:left">赞&nbsp;</div><span class="cnt" id="up8" style="color:#f8e886">0</span>
+        <div style="float:right">踩&nbsp;<span class="cnt" id="down8" style="color:#f8e886">0</span></div></div>
+    </div>
+ 
+    <!-- 循环生成假朋友的卡片 -->
+    <div id="itor"></div>
+
+  </div>
+    <div style="clear:both"></div>
+  <div id="mailbox"></div>
+  <div id="popzan"></div>
+    
+  <br><br>
+  
+  <!-- 非全屏状态弹出全屏按钮 -->
+  <div style="width:100%">
+    <a href="#" class="jqModal2" id="jqModalx" style="display:none">view</a>
+    <div class="jqmWindow2" id="toFull" style="text-align:center;height:0px;width:100%;border-radius: 10px;z-index:2147483000;left:0 !important;">
+      
+      <div id="poptoFull"  class="jqmClose2" style="cursor:pointer;width:300px;margin-left:50%;text-align:center;color:black;background-color:#ffcd00;line-height:35px;font-size:20px"><a id="returns" onclick="handleFullScreen()">返回全屏继续</a></div>
+  
+    </div>
+  </div> 
+  
+  <!-- 计时器结束时，弹出框引导用户查看最终结果 -->
+  <a href="#" class="jqModal" id="jqModal" style="display:none">view</a>
+  <div class="jqmWindow" id="dialog" style="text-align:center;border-radius: 10px;z-index:33333">
+    <span style="font-size:20px;font-weight:900" id="jqtitle">时间到！</span><br><hr>
+    <span style="font-size:18px;" id="jqText">点击下方按钮查看你的结果。</span>
+    <hr>
+    <button href="#" id="pop" class="jqmClose">查看结果</button>
+  </div>
+ 
+ 
+  
+</div>
+
+<script>
+  // 全屏检测
+  function exitFullscreen() {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    }
+  }
+  function checkFull() {
+    var isFull = window.fullScreen || document.webkitIsFullScreen || document.msFullscreenEnabled;
+    //to fix : false || undefined == undefined
+    if (isFull === undefined) {isFull = false;}
+    return isFull;
+  }
+  window.onresize = function() {
+    //console.log(document.fullscreenEnabled,window.fullScreen,document.webkitIsFullScreen,document.msFullscreenEnabled);
+    if (!checkFull()) {
+      //要执行的动作
+      //console.log(1);
+      $('#toFull').jqm({closeClass: 'jqmClose2',trigger: '.jqModal2'});
+      $('#jqModalx').click();
+      $('#popu').show();
+      document.body.scrollTop = 0;
+    }
+  }
+</script>
+
+
+<div  class="rzone" id="p18_content" style="text-align:center;display:none;">
+  <h2>“认识人网”已测试完毕，点击下方按钮继续完成其他内容</h2>
+    <br> <br> 
+    <input id="p18d" type="button" onclick="exitFullscreen()" maxlength="3" style="" value="退出全屏，继续完成问卷"/>&emsp;
+
+</div> 
+
+
+<div class="rzoneside" id="p17_right" style=""></div>
+
+ 
+
+<script>
+ 
+  
+  $(function(){
+    
+    $("#poptoFull").css("margin-left",parseInt($("body").css("width").replace("px",""))/2-300+"px");
+    $("#mb").css("height",(parseInt($("#yitem").css("height").replace("px",""))-75)+"px");
+    let likearr = [];
+    let dislikearr = [];
+ 
+    let outDown = 0;
+    let outUp = 0;
+    
+    let inDown = 0;
+    let inUp = 0;
+  
+    $("#mb").hide();
+    
+    $("#p18d").click(function(){
+      //window.parent.postMessage([JSON.parse("{"+$("#hidejsons").text()+"}"),JSON.parse('{"a":"1"}')],'https://survey.uu.nl/jfe/form/SV_9pHYXNl3IPhMXiK');
+    })
+
+
+    /*
+     * 携带用户在web页面的数据（打分情况及各页面的停留时间统计）返回Qualtrics
+     * div块在index页面上，此部分对各项统计数据进行重组，装入hidejsons中，最终将hidejsons字符串返回给Qualtrics
+     */ 
+
+    $("#p17d").click(function(){
+
+      $("#hidejsons").append("\"userlike\":\""+ likearr.toString() +"\",");
+      $("#hidejsons").append("\"userdislike\":\""+ dislikearr.toString() +"\",");
+      $("#hidejsons").append("\"Page8Time\":\""+ (new Date().getTime() - $("#hidestart").val()) +"ms\"");
+ 
+      $(".rzone").css("min-height","200px");
+      $("#p17_content").hide();
+      GrowlNotification.closeAll();
+      //$("#p18_content").show();
+      $(".content2").css("visibility","hidden");
+      $(".content0").css("visibility","hidden");
+      $(".r3").css("visibility","hidden");
+      setTimeout(() => window.scrollTo(0,0), 150);
+      
+      // 开发环境的问卷
+      //window.parent.postMessage([JSON.parse("{"+$("#hidejsons").text()+"}"),JSON.parse('{"a":"1"}')],'https://survey.uu.nl/jfe/form/SV_9pHYXNl3IPhMXiK');
+      
+      // 返回部署后的问卷
+      window.parent.postMessage([JSON.parse("{"+$("#hidejsons").text()+"}"),JSON.parse('{"a":"1"}')],'https://utrechtuniversity.qualtrics.com/jfe/form/SV_cVnagjch7EGMV7M');
+      
+      // to parent frame
+
+    })
+    
+    
+    /*
+     * 以下部分大多重复intro页面内的代码，主要区别就是此处使用真正的实验设计好的假朋友数据；并且需要用户进行交互（点赞或点踩）
+     */ 
+     
+    if($("#hidevalue").text().split(",")[0]=="normal"){
+      
+      $("#mb").show();
+      $("#self").text("你自己");
+      $("#ybtn").hide();
+      $("#ytext").css("user-select","none");
+      $("#hiding").hide();
+    }
+    
+    // '自己'卡片的内容构造
+
+    let yname = INTRODUCTION[0];
+    let introTextFinal = INTRODUCTION[1];
+    let heads = INTRODUCTION[2].split(";");;
+    let yoursvg = Avataaars.create({
+        width: 50,
+        top: heads[0],
+        hairColor: heads[1],
+        clothing: heads[2],
+        clothingColor: heads[3],
+        eyes: heads[4],
+        mouth: heads[5],
+        skin:"yellow",
+        background: heads[6]
+    });
+    let m = INTRODUCTION[3].split(",");
+    let c = INTRODUCTION[4].split(",");
+    for(let i=0;i<m.length;i++){
+      if(i==m.length-1)
+        introTextFinal += m[i]+c[i]+"。";
+      else
+        introTextFinal += m[i]+c[i]+"，";
+    }
+    $(".interava").html(yoursvg);
+    $("#yname").text(yname);
+    $("#ytext").text(introTextFinal);
+    
+
+    // 对排行榜插件的排序逻辑，实时变化，按规则（赞多优先、相同时踩少优先）排序
+
+    function rank() { 
+      var domList = $(".rankcnt").get();
+      domList.sort(function(a,b){
+        let zanA = parseInt($(a).val().split(",")[0]);
+        let caiA = parseInt($(a).val().split(",")[1]);
+        let zanB = parseInt($(b).val().split(",")[0]);
+        let caiB = parseInt($(b).val().split(",")[1]);
+        if(zanA > zanB) return -1;
+        else if(zanA < zanB) return 1;
+        else{
+          if(caiA < caiB) return -1;
+          else if(caiA > caiB) return 1;
+          else return 0;
+        }
+      });
+      
+      $('#ranky').html(domList);
+      $('.order').css("background-color","#5b60ac");
+      if($("#hidevalue").text().split(",")[0]!="normal"){
+        $('.order')[$('.rankcnt').index($('#rankcnt8'))].style.backgroundColor='#DD9F4B';
+      }
+　
+    }
+    
+    // 读取假朋友数据，并进行构造
+
+    let MSGNAME = "";
+    let MSGCOUNT = "";
+
+    $.getJSON("data/fakers2.json",function(e){
+
+      let sexVesion = $("#hidevalue").text().split(",")[2];
+      let profileVesion = $("#hidevalue").text().split(",")[1];
+      let str = "";
+      
+      let rky = "";
+      
+      MSGNAME = e[0].sexVersion[sexVesion].profileVersion[profileVesion].name;
+      MSGCOUNT = e[0].messageToUser[$("#hidevalue").text().split(",")[0]].sendText.split(";").length; 
+      
+      if($("#hidevalue").text().split(",")[0]=="normal"){
+         $('.order')[0].style.backgroundColor='#5b60ac';
+      } else{
+        $('.order')[0].style.backgroundColor='#DD9F4B';
+        $('.order')[4].style.backgroundColor='#5b60ac';  
+      }
+
+      // rrandom
+      function randomSort(a, b) { return Math.random() > 0.5 ? -1 : 1; } 
+      e.sort(randomSort);
+      
+
+      if($("#hidevalue").text().split(",")[0]!="normal"){
+        rky = "<div value='0,0' class='rankcnt' id='rankcnt8' style='margin:0px 0px 2px 1.3px;border-radius:0px 5px 5px 0px;background-color:#DD9F4B;color:white;text-align:center;line-height:26px;loat:left; width:100%; height:27px; '>你自己</div>";
+      }
+  
+      // 循环构造fake朋友的卡片
+      for(let i = 0; i < e.length; i++){
+        let obj = e[i];
+        let avaStr = obj.sexVersion[sexVesion].profileVersion[profileVesion].avator.split(";");
+ 
+        let svg = Avataaars.create({
+            width: 50,
+            top: avaStr[0],
+            hairColor: avaStr[1],
+            clothing: avaStr[2],
+            clothingColor: avaStr[3],
+            eyes: avaStr[4],
+            mouth: avaStr[5],
+            skin:"yellow",
+            background: avaStr[6]
+        });
+        str += "<div class='item'>";
+        str += "<div class='userInfo'>";
+        str += "<a class='interava'>";
+        str += svg;
+        str += "</a>";
+        str += "<span class='username' value='"+i+"'>";
+        str += obj.sexVersion[sexVesion].profileVersion[profileVesion].name;
+        str += "</span>";
+        str += "</div>";
+        str += "<div class='textInfo'>";
+        str += obj.sexVersion[sexVesion].profileVersion[profileVesion].profile;
+        str += "</div>";
+        str += "<div class='Btn'>赞&nbsp;<span class='cnt' id='up"+i
+          +"' value="+obj.finalZanVsCai[0]
+          +">0</span><button  class='btn17' style='float:right'>赞&nbsp;<img class='imgbtn' src='https://cdn.jsdelivr.net/gh/TianZonglin/tuchuang/imguu/up24.png'/></button></div>";
+        str += "<div class='Btn'>踩&nbsp;<span class='cnt' id='down"+i
+          +"' value="+obj.finalZanVsCai[1]
+          +">0</span><button  class='btn17c' style='float:right'>踩&nbsp;<img class='imgbtn' src='https://cdn.jsdelivr.net/gh/TianZonglin/tuchuang/imguu/down24.png'/></button></div>";
+        str += "</div>";
+        rky += "<div value='0,0' class='rankcnt' id='rankcnt"+i
+          +"' style='margin:0px 0px 2px 1.3px;border-radius:0px 5px 5px 0px;background-color:#5b60ac;color:#FFFFFF;text-align:center;line-height:26px;loat:left; width:100%; height:27px;'>"
+          +obj.sexVersion[sexVesion].profileVersion[profileVesion].name+"</div>";
+
+      }
+      $("#itor").html(str);
+      $("#ranky").html(rky);
+      $(".rankcnt").val("0,0");
+ 
+
+ 
+        
+      // 开始自动地生成fake朋友及交互操作（模拟其他人互相点赞/踩 和 给用户点赞/踩）
+
+      for(let i = 0; i < e.length; i++){
+        let o = e[i];
+        
+        
+        if(o.optionToUser[$("#hidevalue").text().split(",")[0]].opTime != 0){
+          let iavaStr = o.sexVersion[sexVesion].profileVersion[profileVesion].avator.split(";");
+ 
+          // 对照和实验组的交互不同
+          if(o.optionToUser[$("#hidevalue").text().split(",")[0]].opTime && $("#hidevalue").text().split(",")[0]!="normal"){
+
+            // 实现fake朋友的点赞操作：按钮状态变化、赞数变化、排行榜变化、点赞气泡弹出
+            // 注意这里无需点击事件（区别于本页最后的真人操作——需要点击按钮实现赞踩）
+            if(o.optionToUser[$("#hidevalue").text().split(",")[0]].option == "like"){
+              setTimeout(function(){
+                $("#up8").text(parseInt($("#up8").text())+1);
+                $("#up8").css("color","red");
+                $("#up8").css("font-size","10px");
+                $("#up8").css("font-weight","900");
+                $("#rankcnt8").val($("#up8").text()+","+$("#down8").text());
+
+                GrowlNotification.notify({
+                  description: "<span class='big'>你 收到了一个赞！</span>",
+                  type: 'success',
+                  position: 'bottom-left',
+                  closeWith: 'button',
+                  closeTimeout: 3000
+                });
+                rank();
+                setTimeout(function(){
+                  $("#up8").css("color","#f8e886");
+                  $("#up8").css("font-size","16px");
+                },500)
+              }, 1000*parseInt(o.optionToUser[$("#hidevalue").text().split(",")[0]].opTime));
+
+            }else{ // 点踩同上
+              
+              setTimeout(function(){
+                $("#down8").text(parseInt($("#down8").text())+1);
+                $("#down8").css("color","red");
+                $("#down8").css("font-size","10px");
+                $("#down8").css("font-weight","900");
+                $("#rankcnt8").val($("#up8").text()+","+$("#down8").text());
+                GrowlNotification.notify({
+                  description: "<span class='big'>你 收到了一个踩！</span>",
+                  type: 'success',
+                  position: 'bottom-left',
+                  closeWith: 'button',
+                  closeTimeout: 3000
+                });
+                rank();
+                setTimeout(function(){
+                  $("#down8").css("color","#f8e886");
+                  $("#down8").css("font-size","16px");
+                },500)
+              }, 1000*parseInt(o.optionToUser[$("#hidevalue").text().split(",")[0]].opTime));
+            }
+          }
+        }
+ 
+        // 读取预设的假朋友的点赞踩的触发时间
+        let upTime = o.popTime[0].split(",");
+        let downTime = o.popTime[1].split(",");
+        
+        // 实现（模拟）假朋友被别人点赞的功能：默认情况下的赞踩数只在达到触发时间时出现；但同时用户的点赞踩仍会被统计；
+        for(let zan = 0; zan < parseInt(o.finalZanVsCai[0]); zan++){
+          setTimeout(function(){
+            $("#up"+i).text(parseInt($("#up"+i).text())+1);
+            $("#up"+i).css("color","red");
+            $("#up"+i).css("font-size","10px");
+            $("#up"+i).css("font-weight","900");            
+            $("#rankcnt"+i).val($("#up"+i).text()+","+$("#down"+i).text());
+            GrowlNotification.notify({
+              description: "<span class='big'>"+o.sexVersion[sexVesion].profileVersion[profileVesion].name+" 收到了一个赞！</span>",
+              type: 'success',
+              closeWith: 'button',
+              position: 'bottom-left',
+              closeTimeout: 3000
+            });
+            rank();
+            setTimeout(function(){
+              $("#up"+i).css("color","#f8e886");
+              $("#up"+i).css("font-size","16px");
+            },500)
+          }, 1000*parseInt(upTime[zan])); // 按点赞踩时间循环模拟操作（点赞、数量增加、气泡弹出）
+        }
+        //同上
+        for(let cai = 0; cai < parseInt(o.finalZanVsCai[1]); cai++){
+          setTimeout(function(){
+            $("#down"+i).text(parseInt($("#down"+i).text())+1);
+            $("#down"+i).css("color","red");
+            $("#down"+i).css("font-size","10px");
+            $("#down"+i).css("font-weight","900");
+            $("#rankcnt"+i).val($("#up"+i).text()+","+$("#down"+i).text());
+            GrowlNotification.notify({
+              description: "<span class='big'>"+o.sexVersion[sexVesion].profileVersion[profileVesion].name+" 收到了一个踩！</span>",
+              type: 'success',
+              closeWith: 'button',
+              position: 'bottom-left',
+              closeTimeout: 3000
+            });
+            rank();
+            setTimeout(function(){
+              $("#down"+i).css("color","#f8e886");
+              $("#down"+i).css("font-size","16px");
+            },500)
+          }, 1000*parseInt(downTime[cai]));
+        }
+
+        // 如果json数据中设计了给用户发送文本消息，则需统计消息的数量
+        let avaStr = o.sexVersion[sexVesion].profileVersion[profileVesion].avator.split(";");
+        if(parseInt(o.messageToUser[$("#hidevalue").text().split(",")[0]].sendTime)!=0) {
+          setTimeout(function(){
+            $("#msgnum").text(parseInt($("#msgnum").text())+o.messageToUser[$("#hidevalue").text().split(",")[0]].sendText.split(";").length);
+            $("#msgnum").css("color","rgb(255,160,0)");
+            $("#msgnum").css("font-size","10px");
+            $("#msgnum").css("font-weight","900");
+
+            setTimeout(function(){
+              $("#msgnum").css("color","red");
+              $("#msgnum").css("font-size","16px");
+            },500)
+          }, 1000*parseInt(o.messageToUser[$("#hidevalue").text().split(",")[0]].sendTime));
+        }
+        
+        // 如果点击了查看消息按钮，则弹出消息（带头像和文本）
+        $("#check").click(function(){
+          $("#check").addClass("disabled");
+          $("#p17d").removeAttr("disabled");
+          let avaStr = o.sexVersion[sexVesion].profileVersion[profileVesion].avator.split(";");
+          let svg = Avataaars.create({
+              width: 52,
+              top: avaStr[0],
+              hairColor: avaStr[1],
+              clothing: avaStr[2],
+              clothingColor: avaStr[3],
+              eyes: avaStr[4],
+              mouth: avaStr[5],
+              skin:"yellow",
+              background: avaStr[6]
+          });
+          if(parseInt(o.messageToUser[$("#hidevalue").text().split(",")[0]].sendTime)!=0) {
+            let tt = o.messageToUser[$("#hidevalue").text().split(",")[0]].sendText.split(";");
+            //console.log(tt);
+            for(let t=tt.length-1;t>=0;t--){
+              GrowlNotification.notify({
+                description: "<div style='float:left;width:60px'>"+svg+"</div><div style='float:left;width:300px'><span class='big'>"+o.sexVersion[sexVesion].profileVersion[profileVesion].name+" 对你说："+tt[t]+"</span></div>",
+                type: 'info',
+                closeWith: 'button',
+                position: 'bottom-right',
+                closeTimeout: 0
+              });
+            }
+          }
+        })
+
+        
+      }
+      
+      
+      let cutTime = 0.1 * 600 * 3;
+      let summer = setInterval(counClock, 1000);
+
+      /*
+       * 计时器实现（倒计时）。在倒计时结束后对交互的各项结果进行展示，同时去掉（关闭）原有的交互操作。、
+       * 
+       */
+      function counClock() {
+        let min = '';
+        let sec = '';
+
+        if (cutTime > 0) {
+            min = Math.floor(cutTime / 60);
+            sec = Math.floor(cutTime % 60);
+            if (sec < 10) {
+                sec = '0' + sec;
+            };
+            cutTime--;
+            $("#leftTime").text(min + '分' + sec+'秒');
+        } else {
+            clearInterval(summer);
+            $("#leftTime").text('0分00秒');
+            $(".btn17").addClass('disabled');
+            $(".btn17c").addClass('disabled');
+            $("#check").removeAttr("disabled");
+            $(".content2").css("visibility","visible");
+            $(".szan").text($("#up8").text());
+            $(".scai").text($("#down8").text());
+            setTimeout(function(){
+              $('#dialog').jqm();
+              
+              setTimeout(function(){$(".r0").addClass("arrow_box");},1000);
+              
+              $('#pop').click(function(){
+                $("#known").show();
+                $(".content0").css("visibility","visible");
+                
+                // 最后在页面左侧统计卡的内容
+                if($("#hidevalue").text().split(",")[0]=="accept"){
+                  $("#finals").html("你得到了<br><b>最多的赞</b>("+$("#up8").text()+"个赞)<br>和<b>最少的踩</b>("+$("#down8").text()+"个踩)");
+                }else if($("#hidevalue").text().split(",")[0]=="normal"){
+                  $("#finals").html("你一共给别的同学<br>点了<br><b>"+outUp+"个赞</b>和<b>"+outDown+"个踩</b>。");
+                }else if($("#hidevalue").text().split(",")[0]=="refuse"){
+                  $("#finals").html("你得到了<br><b>最多的踩</b>("+$("#down8").text()+"个踩)<br>和<b>最少的赞</b>("+$("#up8").text()+"个赞)。");
+                }
+                $("#known").click(function(){
+                   $(".r0").removeClass("arrow_box");
+                   $("#known").addClass("disabled");
+                   $("#known").attr("disabled","true");
+                   $('#jqtitle').text("收到消息！");
+                   $('#jqText').html("<span style='color:red;'>"+MSGNAME+"</span> 给你发送了<span style='color:red;'>"+MSGCOUNT+"</span> 条消息！请点击下方按钮查看。");
+                   $('#pop').text("查看消息");
+                   let f = true;
+                   setTimeout(function(){
+                      $('#dialog').jqm();
+                      $('#jqModal').click();
+                      $('#pop').click(function(){
+                        if(f) 
+                          setTimeout(function(){
+                            $('#check').click(); // 如果点击了查看消息按钮，则弹出消息（带头像和文本）
+                          },500);
+                        f = false;
+                        setTimeout(function(){
+                           $('#jqtitle').hide();
+                           $('#jqText').html("如果你已阅读完消息，<br>可点击下方按钮离开“认识人网”");
+                           $('#pop').text("结束互动");
+                           $('#dialog').jqm();
+                           $('#jqModal').click();
+                           $('#pop').click(function(){
+                              $("#p17d").click();
+                             f = false;
+                           })
+                        },15000) 
+                      });
+                    },3000)
+                });
+              });
+              $('#jqModal').click();
+            },1000)
+            
+        }
+      }
+      
+
+      /*
+       * 对点赞和点踩按钮的实现。点击实现数量+1、弹出气泡、排行榜更新
+       * 区别于假朋友赞踩的实现（fake朋友的赞踩不需要点击按钮，可以直接增减），这里的实现是为了用户能够真实点击。
+       */
+      $("body").on("click", ".btn17",function(){
+        //$(this).prev().text(parseInt($(this).prev().text())+1);
+        outUp++;
+        $(this).addClass('disabled');
+        $(this).parent().next().find(".btn17c").addClass("disabled");
+        likearr.push($(this).parent().parent().find(".username").text());
+        let iid = $(this).parent().parent().find(".username").attr("value"); 
+        $("#up"+iid).text(parseInt($("#up"+iid).text())+1); 
+        $("#rankcnt"+iid).val($("#up"+iid).text()+","+$("#down"+iid).text());
+        console.log($("#up"+iid).text()+","+$("#down"+iid).text());
+        GrowlNotification.notify({
+          description: "<span class='big'>"+$(this).parent().parent().find(".username").text()+" 收到了一个赞！</span>",
+          type: 'success',
+          position: 'bottom-left',
+          closeWith: 'button',
+          closeTimeout: 3000
+        });
+        rank();
+        setTimeout(function(){rank();},500);
+      });
+      $("body").on("click", ".btn17c",function(){
+        //$(this).prev().text(parseInt($(this).prev().text())+1);
+        outDown++;
+        $(this).addClass('disabled');
+        $(this).parent().prev().find(".btn17").addClass("disabled");
+        dislikearr.push($(this).parent().parent().find(".username").text());
+        let iid = $(this).parent().parent().find(".username").attr("value"); 
+        $("#down"+iid).text(parseInt($("#down"+iid).text())+1); 
+        $("#rankcnt"+iid).val($("#up"+iid).text()+","+$("#down"+iid).text());
+        console.log($("#up"+iid).text()+","+$("#down"+iid).text());
+        GrowlNotification.notify({
+          description: "<span class='big'>"+$(this).parent().parent().find(".username").text()+" 收到了一个踩！</span>",
+          type: 'success',
+          position: 'bottom-left',
+          closeWith: 'button',
+          closeTimeout: 3000
+        });
+        rank();
+        setTimeout(function(){rank();},500);
+      });
+  
+      $("#mb").css("height",(parseInt($("#yitem").css("height").replace("px",""))-75)+"px");
+    });
+    
+    
+  });
+
+</script>

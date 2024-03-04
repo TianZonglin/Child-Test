@@ -1,0 +1,1046 @@
+<!-- @copyright utrecht university
+  -- @author zonglin.tian@outlook.com
+  -- @version 2024-03-03
+  -- @description 实现个人简介信息的收集、个性化主题标签的选取、打分页的生成、打分页的分步导航说明；源自index页面，去往itact页面。
+  -->
+
+
+
+<style>
+  .svgg{
+    display:inline-block;
+    margin-right: 6px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    border: 3px solid white;
+  }
+  .svgg:hover, .svgg:hover{
+      color: #9A1A4A;
+  }
+  svg:hover {
+    fill: red;
+  }
+  
+  .blocks{
+    border: 1.5px solid black;
+    border-radius: 15px;
+    display: inline-block;
+    padding: 3px 10px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    color: #6f6d9d;
+    font-size: 16px;
+    cursor:pointer;
+  }
+  .blocks:hover { 
+    background-color: #5b60ac;
+    color:white;
+  }
+  .blockLight { 
+    background-color: #5b60ac;
+    color:white !important;
+  }
+
+  .sublocks{
+    border: 1.5px solid black;
+    border-radius: 15px;
+    display: inline-block;
+    padding: 3px 10px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    color: #6f6d9d;
+    font-size: 16px;
+    cursor:pointer;
+  }
+
+  .sublocks:hover { 
+    background-color: #5b60ac;
+    color:white;
+  }
+  .sublocksLight { 
+    background-color: #5b60ac;
+    color:white;
+  }
+  .qd{
+    display:none;
+    border: 1.5px solid black;
+    border-radius: 15px;
+    padding: 3px 10px;
+    margin-left: 5px;
+    margin-bottom: 5px;
+    background-color: #5b60ac;
+    color:white !important;
+    font-size: 16px;
+    cursor:pointer;
+  }
+  .blockInput{
+    height: 28px;
+    width: 165px;
+    border: 1.5px solid black;
+    border-radius: 15px;
+    display: inline-block;
+    padding: 3px 10px;
+    color: #6f6d9d;
+    font-size: 16px;
+    cursor:pointer;
+    text-align: center;
+  }
+  .cheng {
+      border: 3px solid #fe8732;
+  }
+  .growl-notification{
+    pointer-events: none !important;
+  }
+  .growl-notification--success{
+    margin-bottom:50px;
+  }
+</style>
+
+
+ 
+
+<!--
+    分类：静态页（第一部分/填写个人简介并选择头像）
+-->
+<div id="p8_content">
+  <h2>请先创建你的个人简介</h2>
+  <div class="poll-form">
+    <p>请输入你的拼音首字母</p>
+    注：在给你的纸条上找到你的拼音首字母。
+    <input id="p8a" maxlength="4" type="text" oninput="value=value.toUpperCase()"  onkeyup="this.value=this.value.replace(/[^a-zA-Z]/g,'')" style="background-color:#e1e1e1;color:black;height:49px;width:100px;"/>&emsp;
+    <span id="p8a_text"></span>
+  </div>
+  <br>
+  <div class="poll-form">
+    <p>请选择你的性别</p>
+    <select id="p8b" style="background-color:#e1e1e1;height:49px;width:85px;color:black;border-radius:5px">
+      <option value="点击选择">点击选择</option>
+      <option value="男">男</option>
+      <option value="女">女</option>
+    </select> 
+  </div>
+  <br>
+  <div class="poll-form">
+    <p>请选择你的年龄</p>
+    注：实岁虚岁都可以。
+    <select id="p8c" style="background-color:#e1e1e1;height:49px;width:85px;color:black;border-radius:5px">
+      <option value="点击选择">点击选择</option>
+      <option value="9">9</option>
+      <option value="10">10</option>
+      <option value="11">11</option>
+      <option value="12">12</option>
+      <option value="13">13</option>
+      <option value="14">14</option>
+    </select> 
+  </div>
+  <br>
+  <!--
+      功能：通过js生成一批头像并插入到此处（代码生成无版权）
+  -->
+  <div class="poll-form">
+    <p>请为自己选择一个头像 </p>
+    <div id="avat"></div><br>
+    <div  style="float:right;"> 
+      <span id="p9_text"></span>&emsp;<button id="p9d" style="margin-right: 20px;" class="disabled">提交</button>
+    </div><br><br>
+  </div>
+  <br>
+
+</div>
+ 
+
+<!--
+    分类：静态页（第二部分/选择五个主题）
+-->
+<div id="p10_content" style="display:none">
+  <h2>请从下面提供的选项中，选择<span style="color:rgb(255 165 0);">五个</span>你愿意分享的主题，向其他同学介绍自己</h2> 
+  <div class="poll-form">
+    <br>
+      <a class="blocks" id="xg">性格</a>
+      <a class="blocks" id="ah">爱好</a>
+      <a class="blocks" id="gz">理想工作</a>
+      <a class="blocks" id="gs">最喜欢的歌手</a>
+      <a class="blocks" id="yy">最喜欢的演员</a>
+      <a class="blocks" id="wy">最喜欢的网络游戏</a>
+      <a class="blocks" id="su">最喜欢的书</a>
+      <a class="blocks" id="dj">最喜欢的电视节目或电影</a>
+      <a class="blocks" id="ls">最喜欢的食物或零食</a>
+      <a class="blocks" id="sw">最不喜欢的食物</a>
+      <a class="blocks" id="dw">最喜欢的动物</a> 
+    <br>
+    <span id="stext"></span><button style="visibility:hidden">提交</button>
+    <button id="p10d" style="float:right;margin-right: 20px;" class="disabled">提交</button>
+    
+  </div>
+</div>
+
+
+
+<!--
+    分类：静态页（第三部分/选择或填写五个主题的答案）
+    注意：此处的默认答案均为提前设计并且直接给出让用户点击选择，用户也可自行填写个性化答案。
+-->
+<div id="p11_content" style="display:none">
+  <div class="poll-form">
+
+    <h2>请为每个主题选择<span style="color:rgb(255 165 0);">一个</span>最能代表你/最符合你的答案</h2> 
+    <div id="subxg" style="display:none;font-size:16.5px" value="我的性格"><b>性格</b><br><br><a class="sublocks">开朗</a><a class="sublocks">活泼</a><a class="sublocks">有点暴躁</a><a class="sublocks">阳光</a><a class="sublocks">友善</a><!-- <a class="sublocks">温和</a><a class="sublocks">幽默</a><a class="sublocks">乐于助人</a><a class="sublocks">有点爱玩儿</a><a class="sublocks">有耐心</a><a class="sublocks">易怒</a><a class="sublocks">胆小</a><a class="sublocks">大方</a><a class="sublocks">不太爱说话</a><a class="sublocks">爱哭</a> --> <input class="blockInput" value="其他, 点击此处输入"/><a class="qd">确定</a><br><span class="stips">提示：按一次键盘左下角的“大写锁定”键即可输入中文。</span><br><br></div>
+    <div id="subah" style="display:none;font-size:16.5px" value="我的爱好是"><b>爱好</b><br><br><a class="sublocks">画画</a><a class="sublocks">玩手机、玩电脑</a><a class="sublocks">打篮球</a><a class="sublocks">跑步</a><a class="sublocks">唱歌</a><!-- <a class="sublocks">跳舞</a><a class="sublocks">看书</a><a class="sublocks">听音乐</a><a class="sublocks">看电视</a><a class="sublocks">跳绳</a><a class="sublocks">听歌</a><a class="sublocks">踢足球</a><a class="sublocks">打乒乓球</a><a class="sublocks">练字</a><a class="sublocks">下棋</a><a class="sublocks">和同学一起玩</a><a class="sublocks">打羽毛球</a> --> <input class="blockInput" value="其他, 点击此处输入"/><a class="qd">确定</a><br><span class="stips">提示：按一次键盘左下角的“大写锁定”键即可输入中文。</span><br><br></div>
+    <div id="subgz" style="display:none;font-size:16.5px" value="我理想工作是"><b>理想工作</b><br><br><a class="sublocks">医生</a><a class="sublocks">教师</a><a class="sublocks">歌手</a><a class="sublocks">老板</a><a class="sublocks">军人</a><!-- <a class="sublocks">舞蹈老师</a><a class="sublocks">科学家</a><a class="sublocks">宇航员</a><a class="sublocks">演员</a><a class="sublocks">画家</a><a class="sublocks">运动员</a><a class="sublocks">厨师</a><a class="sublocks">发明家</a><a class="sublocks">主播</a><a class="sublocks">作家</a><a class="sublocks">程序员</a>--> <input class="blockInput" value="其他, 点击此处输入"/><a class="qd">确定</a><br><span class="stips">提示：按一次键盘左下角的“大写锁定”键即可输入中文。</span><br><br></div>
+    <div id="subgs" style="display:none;font-size:16.5px" value="我最喜欢的歌手是"><b>最喜欢的歌手</b><br><br><a class="sublocks">宋亚轩</a><a class="sublocks">王源</a><a class="sublocks">邓紫棋</a><a class="sublocks">刘耀文</a><a class="sublocks">丁程鑫</a><!-- <a class="sublocks">鞠婧祎</a><a class="sublocks">赵露思</a><a class="sublocks">华晨宇</a><a class="sublocks">肖战</a><a class="sublocks">程潇</a><a class="sublocks">张真源</a><a class="sublocks">周杰伦</a><a class="sublocks">王俊凯</a><a class="sublocks">七叔</a><a class="sublocks">等什么君</a><a class="sublocks">旺仔小乔</a> --> <input class="blockInput" value="其他, 点击此处输入"/><a class="qd">确定</a><br><span class="stips">提示：按一次键盘左下角的“大写锁定”键即可输入中文。</span><br><br></div>
+    <div id="subyy" style="display:none;font-size:16.5px" value="我最喜欢的演员是"><b>最喜欢的演员</b><br><br><a class="sublocks">赵露思</a><a class="sublocks">程潇</a><a class="sublocks">鞠婧祎</a><a class="sublocks">迪丽热巴</a><a class="sublocks">吴京</a><!-- <a class="sublocks">袁冰妍</a><a class="sublocks">王宝强</a><a class="sublocks">肖战</a><a class="sublocks">李小龙</a><a class="sublocks">宋小宝</a><a class="sublocks">成龙</a><a class="sublocks">丁程鑫</a><a class="sublocks">王一博</a><a class="sublocks">杨颖</a><a class="sublocks">贾玲</a><a class="sublocks">马嘉祺</a><a class="sublocks">关晓彤</a><a class="sublocks">贺峻霖</a> --> <input class="blockInput" value="其他, 点击此处输入"/><a class="qd">确定</a><br><span class="stips">提示：按一次键盘左下角的“大写锁定”键即可输入中文。</span><br><br></div>
+    <div id="subwy" style="display:none;font-size:16.5px" value="我最喜欢的网络游戏是"><b>最喜欢的网络游戏</b><br><br><a class="sublocks">《和平精英》</a><a class="sublocks">《王者荣耀》</a><a class="sublocks">《迷你世界》</a><a class="sublocks">《我的世界》</a><a class="sublocks">《绝地求生》</a><!-- <a class="sublocks">球球大作战</a><a class="sublocks">穿越火线</a><a class="sublocks">贪吃蛇</a><a class="sublocks">英雄联盟</a><a class="sublocks">战地2042</a><a class="sublocks">樱花校园模拟器</a><a class="sublocks">迪士尼梦之旅</a><a class="sublocks">反恐精英</a><a class="sublocks">火柴人</a><a class="sublocks">4399小游戏</a> --> <input class="blockInput" value="其他, 点击此处输入"/><a class="qd">确定</a><br><span class="stips">提示：按一次键盘左下角的“大写锁定”键即可输入中文。</span><br><br></div>
+    <div id="subsu" style="display:none;font-size:16.5px" value="我最喜欢的书是"><b>最喜欢的书</b><br><br><a class="sublocks">《西游记》</a><a class="sublocks">《三国演义》</a><a class="sublocks">《查理九世》</a><a class="sublocks">《父与子》</a><a class="sublocks">《中国民间故事》</a><!-- <a class="sublocks">水浒传</a><a class="sublocks">安徒生童话</a><a class="sublocks">斗罗大陆</a><a class="sublocks">十万个为什么</a><a class="sublocks">寄小读者</a><a class="sublocks">阿衰</a><a class="sublocks">红楼梦</a><a class="sublocks">装在口袋里的爸爸</a><a class="sublocks">青铜葵花</a><a class="sublocks">非洲民间故事</a><a class="sublocks">哈利波特</a><a class="sublocks">童年</a><a class="sublocks">爆笑校园</a><a class="sublocks">海底两万里</a><a class="sublocks">云边有个小卖部</a> --> <input class="blockInput" value="其他, 点击此处输入"/><a class="qd">确定</a><br><span class="stips">提示：按一次键盘左下角的“大写锁定”键即可输入中文。</span><br><br></div>
+    <div id="subdj" style="display:none;font-size:16.5px" value="我最喜欢的电视节目或电影是"><b>最喜欢的电视节目或电影</b><br><br><a class="sublocks">《斗罗大陆》</a><a class="sublocks">《王牌对王牌》</a><a class="sublocks">《长津湖》</a><a class="sublocks">《你微笑时很美》</a><a class="sublocks">《战狼》</a><!-- <a class="sublocks">西游记</a><a class="sublocks">奔跑吧</a><a class="sublocks">白蛇传</a><a class="sublocks">千古玦尘</a><a class="sublocks">熊出没</a><a class="sublocks">哪吒</a><a class="sublocks">小猪佩奇</a><a class="sublocks">青春环游记</a><a class="sublocks">传闻中的陈芊芊</a><a class="sublocks">念念</a><a class="sublocks">嘉南传</a><a class="sublocks">如意芳霏</a><a class="sublocks">海绵宝宝</a><a class="sublocks">三国演义</a> --> <input class="blockInput" value="其他, 点击此处输入"/><a class="qd">确定</a><br><span class="stips">提示：按一次键盘左下角的“大写锁定”键即可输入中文。</span><br><br></div>
+    <div id="subls" style="display:none;font-size:16.5px" value="我最喜欢的食物或零食是"><b>最喜欢的食物或零食</b><br><br><a class="sublocks">薯片</a><a class="sublocks">可乐、雪碧</a><a class="sublocks">汉堡</a><a class="sublocks">冰淇淋、雪糕</a><a class="sublocks">辣条</a><!-- <a class="sublocks">糖</a><a class="sublocks">肉</a><a class="sublocks">三明治</a><a class="sublocks">面条</a><a class="sublocks">火锅</a><a class="sublocks">巧克力</a><a class="sublocks">面包</a><a class="sublocks">土豆</a><a class="sublocks">热干面</a><a class="sublocks">牛肉面</a><a class="sublocks">饼干</a><a class="sublocks">蛋糕</a><a class="sublocks">牛排、鸡排</a><a class="sublocks">水果</a><a class="sublocks">坚果</a> --> <input class="blockInput" value="其他, 点击此处输入"/><a class="qd">确定</a><br><span class="stips">提示：按一次键盘左下角的“大写锁定”键即可输入中文。</span><br><br></div>
+    <div id="subsw" style="display:none;font-size:16.5px" value="我最不喜欢的食物是"><b>最不喜欢的食物</b><br><br><a class="sublocks">味道过淡的食物</a><a class="sublocks">胡萝卜</a><a class="sublocks">土豆</a><a class="sublocks">香菜</a><a class="sublocks">西红柿</a><!-- <a class="sublocks">黄瓜</a><a class="sublocks">苦瓜</a><a class="sublocks">冬瓜</a><a class="sublocks">鱼</a><a class="sublocks">辣椒</a><a class="sublocks">软糖</a><a class="sublocks">茄子</a><a class="sublocks">肥肉</a><a class="sublocks">洋葱</a><a class="sublocks">芹菜</a> --> <input class="blockInput" value="其他, 点击此处输入"/><a class="qd">确定</a><br><span class="stips">提示：按一次键盘左下角的“大写锁定”键即可输入中文。</span><br><br></div>
+    <div id="subdw" style="display:none;font-size:16.5px" value="我最喜欢的动物是"><b>最喜欢的动物</b><br><br><a class="sublocks">小狗</a><a class="sublocks">小猫</a><a class="sublocks">兔子</a><a class="sublocks">熊猫</a><a class="sublocks">老虎</a><!-- <a class="sublocks">仓鼠</a><a class="sublocks">狮子</a><a class="sublocks">松鼠</a><a class="sublocks">蛇</a><a class="sublocks">牛</a><a class="sublocks">鸟</a><a class="sublocks">金鱼</a><a class="sublocks">猴子</a><a class="sublocks">小羊</a><a class="sublocks">考拉</a> --> <input class="blockInput" value="其他, 点击此处输入"/><a class="qd">确定</a><br><span class="stips">提示：按一次键盘左下角的“大写锁定”键即可输入中文。</span><br><br></div>
+    <br>
+    <span id="sublocktext"></span><button style="visibility:hidden">提交</button>&emsp;
+    <button id="p11d" style="float:right;margin-right: 20px;" class="disabled">提交</button>
+    
+  </div>
+</div>
+
+
+<!--
+    分类：静态页，准备工作的最后一步，下一页进入打分页的导航说明
+-->
+<div id="p13_content" style="display:none">
+  <audio src="https://cdn.jsdelivr.net/gh/TianZonglin/tuchuang/file/sy.mp3" id="audio" controls="true" autoplay="false" style="display:none">
+    <!-- <source src="1.mp3" type="audio/mpeg"> -->
+    Your browser does not support the audio element.
+  </audio>
+  <h2>稍后，你将与其他学校的学生在线互动</h2> 
+  <div class="poll-form">
+    <br>
+    <button style="visibility:hidden">继续</button>
+    <button id="p13d" style="float:right;display:none">观看操作说明</button>
+  </div>
+</div>
+
+
+
+<!--
+    分类：打分页（导航说明），说明部分
+    功能：通过区域高亮加文字描述进行引导，说明各个区域的功能及交互逻辑
+-->
+<div id="p14_content" style="display:none">
+  <h2>“认识人网”操作说明</h2> 
+ 
+    <button style="float:left;margin-bottom: 30px;box-shadow: 2px 2px 0px 1px rgb(255 189 90);" id="resee">重新观看操作说明</button>
+    <button id="p14d" style="float:right;margin-bottom: 30px;">正式开始</button><br><br>
+      <div id="root">             
+        <div id="mb" style="position: absolute;background:rgb(82 83 88 / 56%);width:268px;height:112px;margin-left: 10px; margin-top: 67px;border-radius:5px;z-index:1000000000"></div>
+        <div class="item" style="position: relative;" id="yitem">
+          <div class="userInfo">
+            <a class="interava"></a>
+            <span class="username" id="yname">PDD</span><span class="self" id="self">你自己</span> 
+          </div>
+          <div class="textInfo" id="ytext">
+            ....
+          </div>
+          <div class="Btn" id="ybtn"><div style="float:left">赞&nbsp;</div><span class="cnt" id="up8" style="color:#f8e886">2</span>
+            <div style="float:right">踩&nbsp;<span class="cnt" id="down8" style="color:#f8e886">0</span></div></div>
+
+        </div>
+
+        <div id="itor"></div>
+
+      </div>
+        <div style="clear:both"></div>
+
+      <div id="mailbox"></div>
+      <div id="popzan"></div>
+
+</div>
+
+<!--
+    分类：静态页
+    功能：打分页导航说明 与 打分页 之间的过渡页
+-->
+<div id="p15_content" style="display:none">
+  <h2>建立连接中...</h2> 
+  <div class="poll-form">
+    <br>
+    请稍等，你正在与其他学生建立连接。
+    <br>
+    <div id="p15_img"><img width="100" src="https://cdn.jsdelivr.net/gh/TianZonglin/tuchuang/img/avv.gif"/></div>
+    <br>
+    <span style="color:green" id="p15_text"></span>
+    <button style="visibility:hidden">继续</button>
+    <button id="p15d" style="float:right;margin-right: 20px;">继续</button>
+  </div>
+</div>
+
+
+<div id="2ndiv"></div>
+
+<script>
+  document.getElementById('audio').pause();
+  $("#mb").css("height",(parseInt($("#yitem").css("height").replace("px",""))-75)+"px");
+  
+  
+  // 说明：数组INTRODUCTION含有五个变量，用来保存用户的个人简介
+  let INTRODUCTION = new Array();
+
+  /*
+   * 功能：页面“创建个人简介”中的提交
+   * 分类：按钮跳转
+   */
+  $("#p9d").click(function(){
+    $("#hidejsons").append("\"Page2Time\":\""+ (new Date().getTime() - $("#hidestart").val()) +"ms\",");
+    $("#hidestart").val(new Date().getTime());
+    
+    $("#p8_content").hide();
+    $("#p10_content").show();
+    setTimeout(() => window.scrollTo(0,0), 150);
+    INTRODUCTION[0] = $("#p8a").val();
+    INTRODUCTION[1] = "大家好！我是一个五年级的"+$("#p8b").val()+"生。我今年"+$("#p8c").val()+"岁了。"
+    INTRODUCTION[2] = $(".cheng").attr("value");
+    //$("#hidejsons").append("\"UserProperties\":\""+$("#p8a").val()+"/"+$("#p8b").val()+"/"+$("#p8c").val()+"岁\",");
+    //console.log($("#hidejsons").text());
+  });
+  
+
+
+  // 计数器，控制用户必须选择五个主题
+  let selectNum = 0;
+
+  // 存贮用户选择或填写的五个主题
+  let myset = new Set([]);
+
+
+  /*
+   * 功能：正常点击五个-主题-后，显示提交按钮
+   * 分类：实现特定功能
+   */
+  $(".blocks").click(function(){
+    
+    if($(this).hasClass("blockLight")){
+      selectNum -= 1;
+      $(this).val("");
+      $(this).toggleClass("blockLight");
+      myset.delete($(this).attr("id"));
+    }else if(selectNum < 5){
+      selectNum += 1;
+      $(this).toggleClass("blockLight");
+      myset.add($(this).attr("id"));
+    }
+    if(selectNum === 5){
+      $("#stext").html("<span style='color:green'><b>选择完毕，点击提交！</b></span>");
+      $("#p10d").removeClass("disabled");
+    }else{
+      $("#stext").html("");
+      $("#p10d").addClass("disabled");
+    }
+  });
+ 
+  /*
+   * 功能：接上一段，点击提交按钮后跳转下一页
+   * 分类：按钮跳转
+   */
+  $("#p10d").click(function(){
+    
+    $("#hidejsons").append("\"Page3Time\":\""+ (new Date().getTime() - $("#hidestart").val()) +"ms\",");
+    $("#hidestart").val(new Date().getTime());
+
+    $("#p10_content").html("");
+    $("#p11_content").show();
+    setTimeout(() => window.scrollTo(0,0), 150); 
+    console.log(myset);
+    myset.forEach (function(value) {
+       $("#sub"+value).show();
+    });
+  });
+  
+
+  // 计数器，控制用户必须选择五个标签（每个主题选择一个）
+  let subselectNum = 0;
+
+  // 存贮用户选择的标签
+  let obj = [];
+
+  $(".qd").click(function(){$(this).hide()});
+  
+  /*
+   * 功能：当用户点击输入框输入文本时的处理：①输入完毕后显示提交按钮，②点击提交后追加标签块，③判断当前选择标签数量。
+   * 分类：实现特定功能
+   */
+  $(".blockInput").focus(function () {
+    $(this).val("");
+    $(this).next().show();
+ 　　$(this).next().next().next().show();　
+ 
+  }).blur(function () {
+    $(this).next().next().next().hide();　
+ 
+    $(".qd").hide();
+    if($(this).val()==""){
+      $(this).val("其他, 点击此处输入");
+      $(this).removeClass("blockLight");
+    }
+    if($("#"+$(this).parent().attr("id")+" > .blockLight").length == 0 && $(this).val()!="" && $(this).val()!="其他, 点击此处输入"){
+      subselectNum += 1;
+      $(this).addClass("blockLight");
+      $(this).siblings().removeClass("blockLight"); 
+
+    }else{
+      if($(this).hasClass("blockLight")){
+        //subselectNum -= 1;
+        //$(this).removeClass("blockLight");
+      }else{
+        if($(this).val()!="其他, 点击此处输入"){
+          $(this).addClass("blockLight");
+          $(this).siblings().removeClass("blockLight");  
+        }
+      }
+    }
+    if(/^([\u4e00-\u9fa5]{1,16})$/gi.test($(this).val())){  
+      console.log(/^([\u4e00-\u9fa5]{1,16})$/gi.test($(this).val()));
+      $(this).addClass("blockLight");
+      $(this).siblings().removeClass("blockLight"); 
+    }else if($(this).val()!="其他, 点击此处输入"){
+      subselectNum -= 1;
+      $(this).val("其他, 点击此处输入");
+      $(this).removeClass("blockLight");
+    }
+    if(subselectNum === 5){
+      $("#sublocktext").html("<span style='color:green'><b>选择完毕，点击提交！</b></span>");
+      $("#p11d").removeClass("disabled");
+    }else{
+      $("#sublocktext").html("");
+      $("#p11d").addClass("disabled");
+    }
+    console.log(subselectNum);
+  });
+  
+  /*
+   * 功能：当用户点击默认给出的标签块时的操作：判断当前选择标签数量，满五个即显示下一步按钮。
+   * 分类：实现特定功能
+   */
+  $(".sublocks").click(function(){
+    if($("#"+$(this).parent().attr("id")+" > .blockLight").length == 0){
+      subselectNum += 1;
+      $(this).addClass("blockLight");
+      $(this).siblings().removeClass("blockLight"); 
+
+    }else{
+      if($(this).hasClass("blockLight")){
+        subselectNum -= 1;
+        $(this).removeClass("blockLight");
+      }else{
+        $(this).addClass("blockLight");
+        $(this).siblings().removeClass("blockLight"); 
+      }
+    }
+    if(subselectNum === 5){
+      $("#sublocktext").html("<span style='color:green'><b>选择完毕，点击提交！</b></span>");
+      $("#p11d").removeClass("disabled");
+    }else{
+      $("#sublocktext").html("");
+      $("#p11d").addClass("disabled");
+    }
+  });
+  
+
+  /*
+   * 功能：这是完成个人简介后、打分页面前的 语音讲解实现
+   * 分类：实现特定功能
+   */
+  $("#p11d").click(function(){
+    
+    $("#hidejsons").append("\"Page4Time\":\""+ (new Date().getTime() - $("#hidestart").val()) +"ms\",");
+    $("#hidestart").val(new Date().getTime());
+    
+    $("#p11_content").hide();
+    let audio = document.getElementById("audio"); 
+    if($("#hidevalue").text().split(",")[0]=="normal"){
+      audio.src = "https://cdn.jsdelivr.net/gh/TianZonglin/tuchuang/file/kz.mp3";
+    }
+
+    $("#p13_content").show();   
+    
+    audio.play();
+    audio.addEventListener('ended', function () {  
+       $("#p13d").show();
+    }, false);
+    /////////////$("#p13d").show();
+    setTimeout(() => window.scrollTo(0,0), 150);
+    INTRODUCTION[3] = $(".blockLight").map(function () { return ($(this).parent().attr("value")); }).get().join(",");
+    INTRODUCTION[4] = $(".blockLight").map(function () { return this.value; }).get().join(",");
+ 
+  });
+          
+       
+  let STEPS = 0;
+
+  /*
+   * 功能：使用driver.js对页面的不同区域进行逐步说明，driver.defineSteps定义了每一步的区域（通过id或class标识）和其解释说明。
+   * 分类：实现特定功能-逐步导航（区分实验和对照组）
+   */
+  function driversTest(){
+    
+      let driver = new Driver({
+        allowClose: true, // Whether clicking on overlay should close or not
+        overlayClickNext: true, // Should it move to next step on 
+        doneBtnText: '知道啦', // Text on the final button
+        closeBtnText: '关闭', // Text on the close button for this step
+        nextBtnText: '知道啦', // Next button text for this step
+        prevBtnText: '返回', // Previous button text for this step
+        showCloseButton: false, // Do not show control buttons in footer
+        keyboardControl: false,
+        animate: false,
+        onNext: (Element) => {
+          $("#mb").css("height",(parseInt($("#yitem").css("height").replace("px",""))-75)+"px");
+          STEPS++;
+          $(".driver-prev-btn").hide();
+          if (!checkFull()) {
+            $(":not(#driver-popover-item)").css("pointer-events","auto");
+          }
+          
+        },      // Called when moving to next step on any step
+        onReset: (Element) => {
+          $(":not(#driver-popover-item)").css("pointer-events","auto");
+        
+        }
+      });
+      driver.defineSteps([
+        {
+          element: '#item2',
+          popover: {
+
+            className: 'first-step-popover-class',
+            title: '其他学生的个人简介',
+            position: 'right'
+          }
+        },{
+          element: '.btn1',
+          popover: {
+            className: 'first-step-popover-class',
+            title: '如果你<b>喜欢</b>他/她的简介，就点击“<b>赞👍</b>”键',
+            position: 'right'
+          }
+        },
+        
+        {
+          element: '.btn2',
+          popover: {
+            className: 'first-step-popover-class',
+            title: '如果你<b>不喜欢</b>他/她的简介，就点击“<b>踩👎</b>”键',
+            position: 'right'
+          }
+        },
+        {
+          element: '.item',
+          popover: {
+            className: '.item',
+            title: '你的个人简介，其他学生可见',
+            position: 'right'
+          }
+
+          
+        },
+        {
+          element: '.Btn',
+          popover: {
+            className: 'first-step-popover-class',
+            title: '你收到的“赞”、“踩”数',
+            position: 'right'
+          }
+        },
+        {
+          element: '.growl-notification--success',
+          popover: {
+            showCloseButton: false,
+            title: '你和其他学生收到“赞”和“踩”的通知',
+            position: 'top'
+          }
+        },
+        {
+          element: '.r1',
+          popover: {
+            title: '你有三分钟的时间给其他学生的简介点赞和踩',
+            position: 'left'
+          }
+        },
+        {
+          element: '.r2',
+          popover: {
+            title: '所有学生的赞数排行。橙色突出显示你的排行',
+            position: 'left'
+          }
+        },
+        {
+          element: '#resee',
+          popover: {
+            showCloseButton: false,
+            title: '点击此键可以再次观看操作说明',
+            position: 'bottom'
+          }
+        },
+        {
+          element: '#p14d',
+          popover: {
+            showCloseButton: false,
+            title: '点击此键可正式开始',
+            position: 'bottom'
+          }
+        },
+      ]);
+      driver.start(); 
+      $(":not(#driver-popover-item)").css("pointer-events","none");
+  }
+  
+  /*
+   * 功能：逐步导航功能需尽量保持全屏，以便全部元素可见。
+   * 分类：判断当前是否为全屏
+   */
+  function checkFull() {
+    var isFull = window.fullScreen || document.webkitIsFullScreen || document.msFullscreenEnabled;
+    //to fix : false || undefined == undefined
+    if (isFull === undefined) {isFull = false;}
+    return isFull;
+  }
+  
+
+ /*
+  * 功能：使用driver.js对页面的不同区域进行逐步说明，driver.defineSteps定义了每一步的区域（通过id或class标识）和其解释说明。
+  * 分类：实现特定功能-逐步导航（区分实验和对照组）
+  */
+  function driversNormal(){
+    
+      let driver = new Driver({
+        allowClose: true,
+        opacity: 1,
+        overlayClickNext: true, // Should it move to next step on overlay click
+        doneBtnText: '知道啦', // Text on the final button
+        closeBtnText: '关闭', // Text on the close button for this step
+        nextBtnText: '知道啦', // Next button text for this step
+        prevBtnText: '', // Previous button text for this step
+        showCloseButton: false, // Do not show control buttons in footer
+        keyboardControl: false,
+        animate: false,
+        onNext: (Element) => {
+         $("#mb").css("height",(parseInt($("#yitem").css("height").replace("px",""))-75)+"px");
+          STEPS++;
+          $(".driver-prev-btn").hide();
+          if (!checkFull()) {
+            $(":not(#driver-popover-item)").css("pointer-events","auto");
+          }
+        },      // Called when moving to next step on any step
+        onReset: (Element) => {
+          $(":not(#driver-popover-item)").css("pointer-events","auto");
+        
+        }
+      });
+      driver.defineSteps([
+        {
+          element: '#item2',
+          popover: {
+            className: 'first-step-popover-class',
+            title: '其他学生的个人简介',
+            position: 'right'
+          }
+        },
+        {
+          element: '.btn1',
+          popover: {
+
+            className: 'first-step-popover-class',
+            title: '如果你<b>喜欢</b>他/她的简介，就点击“<b>赞👍</b>”键',
+            position: 'right'
+          }
+        },
+        {
+          element: '.btn2',
+          popover: {
+            className: 'first-step-popover-class',
+            title: '如果你<b>不喜欢</b>他/她的简介，就点击“<b>踩👎</b>”键',
+            position: 'right'
+          }
+        },
+        {
+          element: '#mb',
+          popover: {
+            className: 'first-step-popover-class',
+            title: '你的个人简介，仅你自己可见',
+            position: 'right'
+          }
+        },
+        {
+          element: '.item',
+          popover: {
+            className: 'first-step-popover-class',
+            title: '其他学生看不到你的简介，不能给你点“赞”或“踩”',
+            position: 'bottom'
+          }
+        },
+        {
+          element: '.growl-notification--success',
+          popover: {
+            showCloseButton: false,
+            title: '其他学生收到“赞”和“踩”的通知',
+            position: 'top'
+          }
+        },
+        {
+          element: '.r1',
+          popover: {
+            title: '你有三分钟的时间给其他学生的简介点赞和踩',
+            position: 'left'
+          }
+        },
+        {
+          element: '.r2',
+          popover: {
+            title: '其他学生的赞数排行',
+            position: 'left'
+          }
+        },
+        {
+          element: '#resee',
+          popover: {
+            showCloseButton: false,
+            title: '点击此键可以再次观看操作说明',
+            position: 'bottom'
+          }
+        },
+        {
+          element: '#p14d',
+          popover: {
+            showCloseButton: false,
+            title: '点击此键可正式开始',
+            position: 'bottom'
+          }
+        },
+      ]);
+      driver.start(); 
+      $(":not(#driver-popover-item)").css("pointer-events","none");
+  }
+  
+  
+  
+  
+  
+  
+  let reseeTime = 0;
+  
+  $("#resee").click(function(){
+    reseeTime++;
+    if($("#hidevalue").text().split(",")[0]=="normal"){
+      driversNormal();
+    }else{
+      driversTest();
+    }
+    
+    
+  });
+  
+ 
+  /*
+   * 功能：动态生成打分页的数据构造及交互功能实现（此处仅作导航说明），包括个人部分（通过简介生成）和fake朋友部分（通过设计好的内容生成/json格式）
+   * 分类：实现特定功能-打分页
+   */
+  $("#p13d").click(function(){
+
+    
+    $("#p13_content").hide();
+    $("#p14_content").show();
+    
+    $("#hidejsons").append("\"Page5Time\":\""+ (new Date().getTime() - $("#hidestart").val()) +"ms\",");
+    $("#hidestart").val(new Date().getTime());
+    
+    // 个人页部分，将INTRODUCTION数组各部分进行重新组装，introTextFinal为用户的最终描述。
+    
+    let yname = INTRODUCTION[0];
+    let introTextFinal = INTRODUCTION[1];
+    let heads = INTRODUCTION[2].split(";");
+    let yoursvg = Avataaars.create({
+        width: 50,
+        top: heads[0],
+        hairColor: heads[1],
+        clothing: heads[2],
+        clothingColor: heads[3],
+        eyes: heads[4],
+        mouth: heads[5],
+        skin:"yellow",
+        background: heads[6]
+    });
+    let m = INTRODUCTION[3].split(",");
+    let c = INTRODUCTION[4].split(",");
+    for(let i=0;i<m.length;i++){
+      if(i==m.length-1)
+        introTextFinal += m[i]+c[i]+"。";
+      else
+        introTextFinal += m[i]+c[i]+"。";
+    }
+
+    // 填入“自己”的卡片，默认存在这张卡片，剩余fake朋友的卡片会在随后生成。
+    $(".interava").html(yoursvg);
+    $("#yname").text(yname);
+    $("#ytext").text(introTextFinal);
+    
+    document.body.style.overflow='hidden';       
+    document.addEventListener("touchmove", function(e){e.preventDefault();},{passive:false});
+    
+    // 使用GrowlNotification插件实现自定义气泡弹窗，模拟实时点赞或踩
+    setTimeout(() => window.scrollTo(0,0), 150);  
+    GrowlNotification.notify({
+      description: "<span class='big ggrowl-notification--success'>LYP 收到了一个赞！</span>",
+      type: 'success',
+      position: 'bottom-left',
+      closeWith: 'button',
+      closeTimeout: 0
+    });  
+
+
+    let s = Avataaars.create({width:52}); 
+    
+    $(".content2").css("margin-top","154px");
+    $(".content2").css("visibility","visible");
+    $(".r3").css("visibility","hidden");
+
+    $("#msgnum").html("<span style='color:red'>1</span>");
+    $("#leftTime").text("3分00秒");
+
+    // 读取预设json，生成对fake朋友，对照、试验两组共用代码，只有部分需要区分实现。
+
+    $.getJSON("data/fakers.json",function(e){
+      let str = "";
+      let rky = "";
+      if($("#hidevalue").text().split(",")[0]!="normal"){   //此处对照、实验组 对“自己”卡片的处理略有不同
+        $('.order')[0].style.backgroundColor='#DD9F4B';
+        rky = "<div class='rankcnt' id='rankcnt8' value='2,0' style='margin:0px 0px 2px 1.3px;border-radius:0px 5px 5px 0px;background-color:#DD9F4B;color:white;text-align:center;line-height:26px;loat:left; width:100%; height:27px; '>你自己</div>";
+      }
+
+      // 按json内容生成html
+      for(let i = 0; i < e.length; i++){
+        let obj = e[i];
+        let avaStr = obj.boy.avator.split(";");
+        let svg = Avataaars.create({
+            width: 50,
+            top: avaStr[0],
+            hairColor: avaStr[1],
+            clothing: avaStr[2],
+            clothingColor: avaStr[3],
+            eyes: avaStr[4],
+            mouth: avaStr[5],
+            skin:"yellow",
+            background: avaStr[6]
+        });
+        let a = obj.boy.finalZanVsCai[0]; 
+        let b = obj.boy.finalZanVsCai[1];
+        let astr = a;
+        let bstr = b;
+        if(a){
+          astr = "<span style='color:#fbff00'>"+a+"</span>";
+        }
+        if(b){
+          bstr = "<span style='color:#fbff00'>"+b+"</span>";
+        } 
+        str += "<div class='item' id='item2'>";
+        str += "<div class='userInfo'>";
+        str += "<a class='interava'>";
+        str += svg;
+        str += "</a>";
+        str += "<span class='username'>";
+        str += obj.boy.name;
+        str += "</span>";
+        str += "</div>";
+        str += "<div class='textInfo'>";
+        str += obj.boy.introText;
+        str += "</div><div class='Btns'>";
+        str += "<div class='Btn btn1'>赞&nbsp;<span class='cnt' id='up"+i+"' value="+obj.boy.finalZanVsCai[0]+">"+astr+"</span><button  class='btn17' style='float:right'>赞&nbsp;<img class='imgbtn' src='https://cdn.jsdelivr.net/gh/TianZonglin/tuchuang/imguu/up24.png'/></button></div>";
+        str += "<div class='Btn btn2'>踩&nbsp;<span class='cnt' id='down"+i+"' value="+obj.boy.finalZanVsCai[1]+">"+bstr+"</span><button  class='btn17c' style='float:right'>踩&nbsp;<img class='imgbtn' src='https://cdn.jsdelivr.net/gh/TianZonglin/tuchuang/imguu/down24.png'/></button></div>";
+        str += "</div></div>";
+        rky += "<div class='rankcnt' id='rankcnt"+i+"' value='"+obj.boy.finalZanVsCai[0]+","+obj.boy.finalZanVsCai[1]+"' style='margin:0px 0px 2px 1.3px;border-radius:0px 5px 5px 0px;background-color:#5b60ac;color:#FFFFFF;text-align:center;line-height:26px;loat:left; width:100%; height:27px;'>"+obj.boy.name+"</div>";
+
+      }
+      $("#itor").html(str);
+      $("#ranky").html(rky);
+      
+      // 实现点赞排序功能，实时变化，按规则（赞多优先、相同时踩少优先）排序
+      var domList = $(".rankcnt").get();
+      domList.sort(function(a,b){
+       let zanA = parseInt($(a).attr("value").split(",")[0]);
+       let caiA = parseInt($(a).attr("value").split(",")[1]);
+       let zanB = parseInt($(b).attr("value").split(",")[0]);
+       let caiB = parseInt($(b).attr("value").split(",")[1]);
+       if(zanA > zanB) return -1;
+       else if(zanA < zanB) return 1;
+       else{
+         if(caiA < caiB) return -1;
+         else if(caiA > caiB) return 1;
+         else return 0;
+       }
+      });
+      $('#ranky').html(domList);
+      $('.order').css("background-color","#5b60ac");
+
+      if($("#hidevalue").text().split(",")[0]!="normal"){
+       $('.order')[$('.rankcnt').index($('#rankcnt8'))].style.backgroundColor='#DD9F4B';
+      }
+      
+      // 按不同实验组进行不同的导航说明
+      if($("#hidevalue").text().split(",")[0]=="normal"){
+        driversNormal();
+      }else{
+        driversTest();
+      }
+      $("#mb").css("height",(parseInt($("#yitem").css("height").replace("px",""))-75)+"px");
+    });
+
+  });
+  
+  
+  /*
+   * 功能：结束导航说明后，进入过渡页，本页模拟用户在线连接其他用户。
+   * 分类：跳转新页面
+   */
+  $("#p14d").click(function(){
+    $("#hidejsons").append("\"reseeTime\":\""+ reseeTime +"\",");
+    //console.log($("#hidejsons").text());
+    $(".demoPop").hide();
+    
+    $("#p15d").hide();
+    $("#hidejsons").append("\"Page6Time\":\""+ (new Date().getTime() - $("#hidestart").val()) +"ms\",");
+    $("#hidestart").val(new Date().getTime());
+    
+    $("#msgnum").text(0);
+    GrowlNotification.closeAll();
+      var mo=function(e){passive: false };
+      document.body.style.overflow='';//出现滚动条
+      document.removeEventListener("touchmove",mo,false);
+    
+    $("#p14_content").html("");
+    $("#p15_content").show();
+    setTimeout(function(){
+      $("#p15_img").css("visibility","hidden");
+      $("#p15_text").html("<span class='big'>... 连接成功，可以开始。</span>");
+      $("#p15d").show();
+    },4000);
+    $(".content2").css("visibility","hidden");
+    $(".content2").css("margin-top","85px");
+    $(".content0").css("visibility","hidden");
+    $(".content0").css("margin-top","85px");
+    setTimeout(() => window.scrollTo(0,0), 150);
+  });
+  
+
+  /*
+   * 功能：跳转到（真正的）打分页itact.html，用户会在此页面进行交互（实验主体）
+   * 分类：跳转新页面
+   */
+  $("#p15d").click(function(){
+    
+    $("#hidejsons").append("\"Page7Time\":\""+ (new Date().getTime() - $("#hidestart").val()) +"ms\",");
+    $("#hidestart").val(new Date().getTime());
+    
+    $("#p15_content").html("");
+    $("#2ndiv").load("partial/itact.html");
+    $(".content2").css("visibility","visible");
+    $(".r3").css("visibility","visible");
+    setTimeout(() => window.scrollTo(0,0), 150);
+ 
+    
+  });
+  
+
+ 
+  $(function(){
+    
+    
+    document.getElementById('audio').pause();
+    $("#known").hide();
+  
+    $("#mb").hide();
+    
+
+    // 在对照组时的一些区别操作
+    if($("#hidevalue").text().split(",")[0]=="normal"){
+      $("#mb").show();
+      $("#self").text("你自己");
+      $("#ybtn").hide();
+      $("#ytext").css("user-select","none");
+      $("#hiding").hide();
+    }
+  
+    $(".sublocks").click(function () { 
+      $(this).val($(this).text());
+    })
+
+
+    /*
+     * 功能：使用Avataaars.js生成头像，aString即头像的组合元素，此处只随机生成24个头像，完全可以保证头像的区分度。
+     * 分类：实现特定功能-头像生成
+     */
+    let aString = "longButNotTooLong;black;shirtCrewNeck;gray01;wink;smile;#A59101^theCaesarAndSidePart;black;collarAndSweater;black;squint;twinkle;#A59101^shortRound;black;hoodie;blue03;squint;grimace;#DD8FE4^shortRound;black;hoodie;red;happy;serious;#76D18D^dreads01;black;graphicShirt;blue01;wink;eating;#839BFF^dreads01;black;hoodie;blue03;squint;serious;#DD8FE4^shortFlat;black;shirtCrewNeck;blue02;winkWacky;smile;#A59101^shortFlat;black;hoodie;blue02;squint;smile;#76D18D^straightAndStrand;black;hoodie;pastelGreen;happy;twinkle;#8F69DB^longButNotTooLong;black;hoodie;gray02;side;smile;#DD8FE4^straight01;black;shirtCrewNeck;blue03;surprised;smile;#8F69DB^longButNotTooLong;black;shirtScoopNeck;pink;wink;twinkle;#DD8FE4^bob;black;shirtScoopNeck;blue02;surprised;twinkle;#8F69DB^shortRound;black;shirtCrewNeck;gray02;wink;twinkle;#8F69DB^longButNotTooLong;black;shirtCrewNeck;pink;happy;eating;#A59101^theCaesar;black;shirtCrewNeck;blue02;winkWacky;tongue;#A59101^longButNotTooLong;black;shirtScoopNeck;pastelRed;squint;serious;#839BFF^theCaesar;black;graphicShirt;pastelGreen;squint;twinkle;#76D18D^straightAndStrand;black;shirtScoopNeck;pastelBlue;surprised;smile;#839BFF^bob;black;overall;blue03;squint;grimace;#A59101^shortRound;black;shirtCrewNeck;pastelGreen;happy;eating;#A59101^dreads01;black;shirtCrewNeck;pastelYellow;surprised;tongue;#839BFF^straightAndStrand;black;collarAndSweater;blue02;winkWacky;eating;#A59101^straightAndStrand;black;overall;black;winkWacky;tongue;#DD8FE4";
+    let Temp = aString.split("^");
+    for(let i=0;i<Temp.length;i++){
+      aTemp = Temp[i].split(";");
+      let t = aTemp[0];//mtop[Math.floor(Math.random() * mtop.length)];
+      let h = aTemp[1];//hairColor[Math.floor(Math.random() * hairColor.length)];
+      let c = aTemp[2];//clothing[Math.floor(Math.random() * clothing.length)];
+      let cc = aTemp[3];//clothingColor[Math.floor(Math.random() * clothingColor.length)];
+      let e = aTemp[4];//eyes[Math.floor(Math.random() * eyes.length)];
+      let m = aTemp[5];//mouth[Math.floor(Math.random() * mouth.length)];
+      let b = aTemp[6];//background[Math.floor(Math.random() * background.length)];
+      let arr = [t,h,c,cc,e,m,b];
+      var svg = Avataaars.create({
+          width: 60,
+          top: t,
+          hairColor: h,
+          clothing: c,
+          clothingColor: cc,
+          eyes: e,
+          mouth: m,
+          skin:"yellow",
+          background: b
+      });
+      $("#avat").append("<a class='svgg' value='"+arr.join(";")+"'>"+svg+"</a>");
+
+    }
+    
+    /*
+     * 功能：控制个人简介界面的填写，既完成填写的完整性检测（包括姓名、性别、年龄、头像），又同时实现提示词变化（填写完整后提示用户提交）。
+     * 分类：实现特定功能-规范用户填写
+     */
+    $("body").on("click", ".svgg",function(){
+      console.log($(this).attr("value"));
+      $(this).addClass("cheng");
+      $(this).siblings().removeClass("cheng");
+      if($("#p8a").val()!=""&&$("#p8b").val()!="点击选择"&&$("#p8c").val()!="点击选择"){
+        $("#p9_text").html("<span style='color:green' class='big'><b>选择完毕，点击提交！</b></span>");
+        $("#p9d").removeClass("disabled");
+      }
+    });
+
+    $("#p8q").click(function(){
+      if($("#p8a").val()!=""&&$("#p8b").val()!="点击选择"&&$("#p8c").val()!="点击选择"&& $(".svgg").hasClass("cheng")){
+        $("#p9_text").html("<span style='color:green' class='big'><b>选择完毕，点击提交！</b></span>");
+        $("#p9d").removeClass("disabled");
+      }
+    });
+
+    $("#p8b").click(function(){
+      if($("#p8a").val()!=""&&$("#p8b").val()!="点击选择"&&$("#p8c").val()!="点击选择"&& $(".svgg").hasClass("cheng")){
+        $("#p9_text").html("<span style='color:green' class='big'><b>选择完毕，点击提交！</b></span>");
+        $("#p9d").removeClass("disabled");
+      }
+    });  
+
+    $("#p8c").click(function(){
+      if($("#p8a").val()!=""&&$("#p8b").val()!="点击选择"&&$("#p8c").val()!="点击选择"&& $(".svgg").hasClass("cheng")){
+        $("#p9_text").html("<span style='color:green' class='big'><b>选择完毕，点击提交！</b></span>");
+        $("#p9d").removeClass("disabled");
+      }
+    });  
+  
+
+  
+  });    
+    
+    
+  
+</script>

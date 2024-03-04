@@ -1,0 +1,291 @@
+<!-- @copyright utrecht university
+  -- @author zonglin.tian@outlook.com
+  -- @version 2024-03-02
+  -- @description 主要功能是获取Qualtrics部分的Code，通过Code确定当前用户所属的实验组（自动区分生成内容）；源自Qualtrics页面，去往intro页面。
+  -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>认识人网</title>
+
+  <!-- Import the webpage's stylesheet -->
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/css/driver.min.css">
+  <link rel="stylesheet" href="/css/colored-theme.min.css">
+  
+  <script src="/js/jquery.min.js"></script>
+  <script src="/js/driver.min.js"></script>
+  <script src="/js/growl-notification.min.js"></script>
+  <script src="/js/avataaars.js"></script>
+  <script src="/js/jqmodel.js"></script>
+
+  <script type="text/javascript">
+
+      
+  $(function(){
+  
+    $(".demoPop").css("margin-top",'-220px');
+  
+    // 交互优化，页面全屏
+    function checkFull() {
+      var isFull = window.fullScreen || document.webkitIsFullScreen || document.msFullscreenEnabled;
+      //to fix : false || undefined == undefined
+      if (isFull === undefined) {isFull = false;}
+      return isFull;
+    }
+    window.onresize = function() {
+      if (!checkFull()) {
+        $('#toFull').jqm();
+        $('#jqModalx').click();
+        $('#popu').show();
+        document.body.scrollTop = 0;
+      }
+    }
+    
+
+    // 获取来自于Qualtrics跳转里的code
+    function getQueryVariable(variable){
+      var query = window.location.search.substring(1);
+      var vars = query.split("&");
+      for (var i=0;i<vars.length;i++) {
+        var pair = vars[i].split("=");
+        if(pair[0] == variable){return pair[1];}
+      }
+      return(false);
+    }
+
+    // 代码[a,b,c]的表述规则 
+    // a 实验组别：1 - 接受组；2 - 对照组；3 - 拒绝组；（接收和拒绝组仅为赞踩数量差别，代码实现时统称为实验组）
+    // b 版本区分：1 - 版本一；2 - 版本二；
+    // c 性别区分：1 - 男生组；2 - 女生组；
+
+    let strInput = "322"; // 给定一个默认组别（无实际意义，但可支持Web页面脱离Qualtrics打开）
+    if(getQueryVariable("code")!= false){
+      strInput = getQueryVariable("code");
+    }
+    let zooom = 0.9;  
+    if(getQueryVariable("z")!= false){
+      zooom = getQueryVariable("z");
+    }
+    
+    $("body").css("zoom",zooom);
+    
+    console.log(strInput);
+
+    // 匹配Code
+    if(strInput.length == 3){
+      let GROUP = strInput[0]; //2
+      let VERSION = strInput[1];  //3
+      let GENDER = strInput[2]; //2
+      let hideVlaue = "";
+      let reg=/^[0-9]+.?[0-9]*$/;
+      if(reg.test(strInput)){
+        switch(GROUP) {
+          case "1":
+              $("#hidevalue").text($("#hidevalue").text().replace("groupVersion","accept"));
+            break;
+          case "2":
+              $("#hidevalue").text($("#hidevalue").text().replace("groupVersion","normal"));
+            break;
+          case "3":
+              $("#hidevalue").text($("#hidevalue").text().replace("groupVersion","refuse"));
+            break;
+          default:
+              $("#hidevalue").text($("#hidevalue").text().replace("groupVersion","accept"));
+        }
+        switch(VERSION) {
+          case "1":
+          
+            $("#hidevalue").text($("#hidevalue").text().replace("profileVersion","version1"));
+            break;
+          case "2":
+            $("#hidevalue").text($("#hidevalue").text().replace("profileVersion","version2"));
+            break;
+          default:
+            $("#hidevalue").text($("#hidevalue").text().replace("profileVersion","version1"));
+        }
+        switch(GENDER) {
+          case "1":
+            $("#hidevalue").text($("#hidevalue").text().replace("sexVersion","boy"));
+            break;
+          case "2":
+            $("#hidevalue").text($("#hidevalue").text().replace("sexVersion","girl"));
+            break;
+          default:
+            $("#hidevalue").text($("#hidevalue").text().replace("sexVersion","boy"));
+            // code block
+        }
+      }
+    }
+  
+    $("#poptoFull").css("margin-left",parseInt($("body").css("width").replace("px",""))/2+150+"px");
+    
+  });   
+      
+  
+  var exitFullscreen = false
+
+  function handleFullScreen() {
+    $("#popu").hide();
+    var element = document.documentElement;
+    if (this.fullscreen) {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitCancelFullScreen) {
+        document.webkitCancelFullScreen();
+      } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      }
+    } else {
+      if (element.requestFullscreen) {
+        element.requestFullscreen();
+      } else if (element.webkitRequestFullScreen) {
+        element.webkitRequestFullScreen();
+      } else if (element.mozRequestFullScreen) {
+        element.mozRequestFullScreen();
+      } else if (element.msRequestFullscreen) {
+        // IE11
+        element.msRequestFullscreen();
+      }
+    }
+    
+  }
+  </script>
+  </head>
+
+  <body style="zoom:1">  
+  
+ 
+  <span id="hidestart" style="display:none;">0</span>
+  <span id="hidejsons" style="display:none;"></span>
+  <span id="hidevalue" style="display:none;">groupVersion,profileVersion,sexVersion</span>
+  <div class="wrapper">
+    
+
+  <!--
+      分类：静态页面内容，初始时不可见
+      功能：在用户完成打分页的打分后，显示用户的得分（得到几个赞几个踩）
+  -->
+   <div class="content0" style="display: inline-block;height:70px;">
+        <div class="r0" style="  height:190px;display: flex;   flex-direction: column;   align-items: left;   justify-content: left;   width: 100px;border-radius:5px; text-align:center;width:170px;background-color:#f8f7f8;padding: 10px;">
+          <span style="font-weight:900">最终结果</span>
+          <div style=" width:150px; margin-top:10px;margin-bottom:10px">
+            <div style="float:left; font-size:15px;font-weight:900;width:100%; color:#f8f7f8;">
+              <!--
+                  功能：插入用户的得分
+              -->
+              <div class="order2" style="height:90px;padding-top:8px" id="finals"></div>
+            </div>
+              <button style="width: 114px; color: #000000; margin-top: 5px; font-weight: 900;" id="known"> 知道了</button>
+          </div>
+        </div>
+        <br><br>
+    </div>
+
+
+
+
+    <div class="content" style="" role="main">
+      <!--
+          分类：动态交互部分
+          功能：在首次进入Web界面（认识人网）时弹出能够点击实现全屏的提示框，优化交互，全屏展示。
+      -->
+      <div style="width:100%">
+        <a href="#" class="jqModal" id="jqModalx" style="display:none">view</a>
+        <div class="jqmWindow2" id="toFull" style="text-align:center;height:0px;width:100%;border-radius: 10px;z-index:2147483000;left:0 !important;"> 
+          <div id="poptoFull"  class="jqmClose" style="cursor:pointer;width:300px;margin-left:50%;text-align:center;color:black;background-color:#ffcd00;line-height:35px;font-size:20px"><a id="returns" onclick="handleFullScreen()">返回全屏继续</a></div>
+        </div>
+      </div> 
+      
+      <!--
+          分类：静态页面内容，Qualtrics流程中的最后一页
+          功能：点击跳转按钮后即离开Qualtrics进入Web界面（认识人网）
+      -->
+      <div  class="rzone" id="p0_content" style="text-align:center">
+        <h2>点击下方按钮，跳转至“认识人网”</h2>
+         <br> <br> 
+          <input id="p0d" type="button" onclick="handleFullScreen()" maxlength="3" style="" value="进入“认识人网”"/>&emsp;
+      </div>     
+ 
+      <!--
+          分类：静态页面内容，认识人网的第一页
+          功能：信息引导页
+      -->
+      <div  class="rzone" id="p7_content" style="display:none">
+        <h2>欢迎来到认识人网! </h2>
+        <div class="poll-form">
+          <p>
+          你即将和<b>其他学校的学生</b>在本网站中在线互动<b>，你们互相不认识。</b>
+          </p>
+        </div><br>
+        <button id="p7d">继续</button>
+      </div>
+
+
+      <!--
+          分类：填写基本信息、选择头像、完善个人描述
+          功能：作为打分页面的准备环节，完成收集用户个性化数据的工作
+                由于整个部分结合紧密且有多次跳转，故将其放置在intro.html中，该代码块被显示时会加载intro.html
+      -->
+      <div  class="rzone" id="p8-21" style="display:none">
+        
+      </div>
+    </div>
+
+
+    <div class="content2" style="inline-block;height:520px;">
+        <div style="border-radius:5px; text-align:center;width:170px; height:60px;background-color:#f8f7f8;padding: 10px;"> 
+          <div class="r1">剩余时间<br><span id="leftTime" style="color:red;font-weight:900"></span></div>
+        </div><br>
+        <div class="r2" style="  display: flex;   flex-direction: column;   align-items: left;   justify-content: left;   width: 100px;border-radius:5px; text-align:center;width:170px; height:310px;background-color:#f8f7f8;padding: 10px;">
+          <span>赞数排行</span>
+          <div style=" width:150px; height:243px;margin-top:10px">
+
+            <div style="float:left; font-size:15px;font-weight:900;width:55%; height:270px;color:#f8f7f8">
+              <div class="order firstyellow">第一名</div>
+              <div class="order">第二名</div>
+              <div class="order">第三名</div>
+              <div class="order">第四名</div>
+              <div class="order">第五名</div>
+              <div class="order">第六名</div>
+              <div class="order">第七名</div>
+              <div class="order">第八名</div>
+              <div class="order" id="hiding">第九名</div>
+            </div>
+            <div style=" float:left; font-size:15px;font-weight:900;width:45%; height:270px;" id="ranky">
+
+            </div>
+
+          </div>
+        </div><br>
+        <!--没用吗？-->
+        <div class="r3" style="border-radius:5px; text-align:center;width:170px; height:50px;background-color:#f8f7f8;padding: 10px;display:none;"> 
+          <div>已收到&nbsp;<span class="cnt" id="msgnum">0</span> 条消息</div> 
+          <button style="margin-top:15px;display:none" id="check" disabled>点击查看</button>
+        </div>
+        <br>
+
+
+        <!-- 
+          此部分为Web页面的最后一页，点击后会跳转回Qualtrics继续问卷部分。
+        -->
+        <div class="r3" id="r3" style="display:none;border-radius:5px; text-align:center;width:170px; height:100px;background-color:#f8f7f8;padding: 25px 10px 10px 10px;"> 
+          <button id="p17d" style="margin-top:0px;box-shadow: 2px 2px 0px 1px rgb(255 189 90);" disabled><b>进入下一页</b></button>
+        </div><br>
+      
+      
+    </div>
+  </div>
+ 
+</body>
+<script src="/main.js"></script>
+</html>
