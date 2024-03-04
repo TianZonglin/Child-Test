@@ -1,3 +1,9 @@
+<!-- @copyright utrecht university
+  -- @author zonglin.tian@outlook.com
+  -- @version 2024-03-04
+  -- @description 实现投票器和cyberball游戏，两部分均直接以iframe插入进Qualtrics页面，在认识人网中不再出现。
+  -->
+ 
 
 <style>
   .p2s3{
@@ -15,6 +21,9 @@
   }
 </style>
   
+<!--
+  投票器静态形状的实现代码。
+-->
 <div class="rzone" id="p27_content" style="width:700px">
   <h2>
     【名字】最近在参加一个才艺比赛
@@ -60,9 +69,11 @@
     <button style="visibility:hidden">继续</button>
     <button id="p27d" style="float:right;margin-right: 0px;" disabled>下一页</button><br> 
   </div>
- </div> 
+</div> 
 
-  <!-- ADD LINK FROM TODO -->
+<!-- 
+    此部分为三人扔球游戏，通过cyberball的客户端进行参数配置，然后即可获取链接，此处直接以iframe方式插入进页面即可。
+-->
 <div class="rzone" id="p31_content"  style="display:none">
   <h2>
     最后，我们要测试另一个网站 - 在线抛球!
@@ -92,6 +103,7 @@
 <br><br>
 
 <script type="text/javascript">
+
   $(function(){
     
     $("#p27d").click(function(){
@@ -110,11 +122,14 @@
       $("#p31d").removeAttr("disabled");
     }, 60000);
   
-    
+    // 投票器按钮的实现，用户在规定时间内点击加减按钮
+
     const NUMBER = 372;
     
     let timer = document.querySelector("#timer");
     let number = 15;
+    
+    // 开始计时
     $("#startt").click(function(){
       $("#timer").css("color","rgb(255,95,95)");
       let sid = setInterval(function(){
@@ -129,9 +144,13 @@
         }
         timer.innerText = number + 0 }, 
       1000);
+
+      // 点击减票按钮，票数减一
       $("#tp1").click(function(){
         $("#tpcnt").text(parseInt($("#tpcnt").text())-1);      
       });
+
+      // 点击弃权按钮，终止计时
       $("#tp2").click(function(){
         $("#timer").text("0");
         $("#tpcnt").text(NUMBER);
@@ -141,6 +160,8 @@
         $("#p27d").removeAttr("disabled");
         clearInterval(sid);
       });
+
+      // 点击加票按钮，票数加一
       $("#tp3").click(function(){
         $("#tpcnt").text(parseInt($("#tpcnt").text())+1);
       });
@@ -149,9 +170,6 @@
  
     $("#avatt").html( Avataaars.create({width:50}) );
     $("#tpcnt").text(NUMBER);
-
-    
-
  
   });
 </script>

@@ -26,7 +26,6 @@
 │  └─cball.html                     // 玩球游戏，后经iframe独立引入Qualtrics
 │
 ├─style.css                         // 网站基础样式
-├─main.js                           // 实现初始的交互/跳转
 ├─index.html                        // 认识人网的主页/入口
 ├─simple-http-server.exe            // 轻量的http-server启动器
 └─README.md                         // 项目说明

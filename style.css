@@ -1,3 +1,5 @@
+/* 此文件为认识人网的基础样式文件，定义了各个分散的部分的元素样式，不做详细解释 */
+
 .jqmWindow2 {
     display: none;
     position: fixed;
@@ -33,7 +35,6 @@
    
 }
 
- 
 
 .arrow_box{animation: glow 800ms ease-out infinite alternate; }
 @keyframes glow {
