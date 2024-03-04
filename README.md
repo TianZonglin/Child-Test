@@ -44,7 +44,7 @@
 
 3. 更改当前目录到本项目的根目录，例如本项目文件夹放置在 `D` 盘 `D:\Child-Test`， 则拷贝执行 `cd /D D:\Child-Test` 命令；
 
-4. 拷贝执行 `.\simple-http-server.exe --ip 127.0.0.1` 命令；
+4. 拷贝执行 `.\simple-http-server.exe --ip 127.0.0.1` 命令，启动服务；
 
 5. 如下图所示表示运行正常，可点击访问 `http://127.0.0.1:8000/index.html` 随即进入认识人网页面。
 ![demo](https://cdn.jsdelivr.net/gh/zonelyn/img/demo.jpg)
