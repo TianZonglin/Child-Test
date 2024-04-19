@@ -1,4 +1,4 @@
-![demo](https://cdn.jsdelivr.net/gh/TianZonglin/Child-Test/process.jpg)
+![demo](https://cdn.jsdelivr.net/gh/TianZonglin/Child-Test/steps.jpg)
 
 ### 项目结构
 
