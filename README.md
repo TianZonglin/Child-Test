@@ -36,6 +36,11 @@
 
 ### 快速使用
 
+If you want to use this system, just download the code and run it in any possible web container.
+
+- online demo: c, please wait 10 seconds for initialization.
+- Need more help? leave a comment in the repo and we will find out the answer together then.
+
 为了便于非开发人员自行使用，项目文件中已内置server启动器，无需安装任何编程环境和软件。部署步骤如下：
 
 1. 下载当前项目（通过 `git clone` 或直接网页下载zip解压成文件夹均可）；
