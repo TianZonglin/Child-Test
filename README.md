@@ -52,5 +52,5 @@
 
 If you want to use this system, just download the code and run it in any possible web container.
 
-- online demo: [https://investy.glitch.me](https://investy.glitch.me/), please wait 10 seconds for initialization.
-- Need more help? leave a comment in the repo and we will find out the answer together then.
+- please wait 10 seconds for initialization.
+- Need more help? leave a comment in the repo.
